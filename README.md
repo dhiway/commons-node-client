@@ -13,8 +13,9 @@ connection on it, that the caller built. That is deliberate — the caller
 chooses the network and keeps custody of its keys.
 
 These crates were moved here from `commons-node` at revision `7b4694e`
-(version 0.9.48). From here they version on their own; consumers pin this
-repository by revision.
+(workspace version 0.9.47; the content is that of the 0.9.48 release commit
+`a142270`, which changed neither crate). From here they version on their own;
+consumers pin this repository by revision.
 
 ## Consumers
 
@@ -41,6 +42,11 @@ python3 scripts/check-transport-pins.py ../commons-node/Cargo.lock
 ```
 
 Deliberately offline: it reads the lockfile Cargo produced, not the network.
+
+`iroh-gossip` (the `dhiway` fork) is not in this table: it reaches consumers
+through `origin-protocol`'s own pin, so it is consistent as long as every
+consumer shares the same `origin-protocol` revision. It is checked there, not
+here.
 
 ## Building
 

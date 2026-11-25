@@ -3,9 +3,11 @@ resolver = "2"
 members = ["crates/auth-wire", "crates/client"]
 
 [workspace.package]
-# Continues the node's numbering at the revision the crates were moved from
-# (commons-node 7b4694e, 0.9.48). From here the two crate versions move on
-# their own; consumers pin this repository by revision.
+# Continues the node's numbering: the crates were moved from commons-node
+# 7b4694e (whose workspace version is 0.9.47; the content is that of the
+# 0.9.48 release commit a142270, which did not change either crate). From here
+# the two crate versions move on their own; consumers pin this repository by
+# revision.
 version = "0.9.48"
 edition = "2024"
 rust-version = "1.99.0"

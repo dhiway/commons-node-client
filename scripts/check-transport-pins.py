@@ -22,15 +22,20 @@ def load_pins(path: Path) -> dict[str, str]:
     return {name: entry["rev"] for name, entry in pins.items() if isinstance(entry, dict)}
 
 
-def resolved(locks: list[Path]) -> dict[str, str]:
-    found: dict[str, str] = {}
+def resolved(locks: list[Path]) -> dict[str, set[str]]:
+    """Every resolved revision per pinned crate.
+
+    A set, not one value: if a lockfile ever carried the same crate from git at
+    two revisions, taking only one would let a drifted copy pass.
+    """
+    found: dict[str, set[str]] = {}
     for lock in locks:
         data = tomllib.loads(lock.read_text())
         for package in data.get("package", []):
             name = package.get("name")
             if name in PINS_NAMES and package.get("source", "").startswith("git+"):
                 rev = package["source"].rsplit("#", 1)[-1]
-                found[name] = rev
+                found.setdefault(name, set()).add(rev)
     return found
 
 
@@ -43,14 +48,18 @@ def main(argv: list[str]) -> int:
     expected = load_pins(pins_path)
     actual = resolved(lock_paths)
     missing = sorted(PINS_NAMES - actual.keys())
-    wrong = {n: (expected[n], actual[n]) for n in sorted(PINS_NAMES & actual.keys()) if actual[n] != expected[n]}
+    wrong = {
+        n: (expected[n], sorted(actual[n]))
+        for n in sorted(PINS_NAMES & actual.keys())
+        if actual[n] != {expected[n]}
+    }
     if not missing and not wrong:
         print(f"transport pins agree with {pins_path}")
         return 0
     for name in missing:
         print(f"MISSING {name}: not resolved from git (expected rev {expected[name]})")
     for name, (want, got) in wrong.items():
-        print(f"DRIFT {name}: expected {want}, resolved {got}")
+        print(f"DRIFT {name}: expected {want}, resolved {', '.join(got)}")
     return 1
 
 

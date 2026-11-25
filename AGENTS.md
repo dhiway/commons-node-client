@@ -20,7 +20,8 @@ node's source.
 
 ## Provenance
 
-Moved from `commons-node` at `7b4694e` (0.9.48). Until the node switches to
+Moved from `commons-node` at `7b4694e` (workspace 0.9.47; content of the
+0.9.48 release commit `a142270`). Until the node switches to
 pinning this repository, the node's copy is the one it builds; that switch is
 its own task, in its own repository, on an isolated branch.
 
@@ -33,5 +34,5 @@ cargo test
 python3 scripts/check-transport-pins.py Cargo.lock
 ```
 
-Some `auth-wire` tests are golden and interop tests; a Python one runs only
-when Python is present, and must say so rather than pass silently.
+Some `auth-wire` tests are golden and interop tests; the interop test requires
+`python3` and fails loudly without it, rather than skipping.
