@@ -15,9 +15,13 @@
 //! under [`PARAMS_CODEC`] and [`RESPONSE_CODEC`]; on every outward interface a
 //! version is a decimal string and an author is written in the endpoint's
 //! z-base-32 form ([`Entry`], spec 1.6).
+//!
+//! One call does not use iroh: [`local::local_admin_call`] speaks JSON-RPC to
+//! the node's private same-UID Unix socket on this machine, never the network.
 
 mod exchange;
 pub mod key_door;
+pub mod local;
 /// The Commons network profile (8.1), under the `commons-profile` feature.
 #[cfg(feature = "commons-profile")]
 pub mod profile;

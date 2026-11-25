@@ -35,6 +35,20 @@ These crates were moved here from `commons-node` at revision `7b4694e`
 `a142270`, which changed neither crate). From here they version on their own;
 consumers pin this repository by revision.
 
+## The local admin call
+
+`commons_node_client::local::local_admin_call(data_dir, method, params)` is
+the one call that does not use iroh. It sends a JSON-RPC 2.0 request over
+HTTP/1 to the node's private same-UID Unix socket,
+`<data_dir>/admin/admin.sock`, on the same machine, and never talks over the
+network: it takes a data directory, not a URL, and reads no keystore material.
+It refuses a socket or `admin` directory that is a symlink, is owned by
+another user or grants group or other access, and a peer whose uid is not the
+caller's. Requests are at most 64 KiB, responses at most 8 MiB, and the
+exchange times out after 15 seconds. The node's server keeps method
+classification and same-UID authorization. Non-Unix targets get an error.
+Ported from commons-node `7b4694e`, `crates/rpc/src/local_admin_client.rs`.
+
 ## Consumers
 
 | Consumer | How it uses the client |
