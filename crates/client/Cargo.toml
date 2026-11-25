@@ -1,0 +1,26 @@
+[package]
+name = "commons-node-client"
+description = "The Commons node's control/1 wire types and client, on an endpoint the caller builds"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+auth-wire.workspace = true
+blake3.workspace = true
+chacha20poly1305.workspace = true
+hex.workspace = true
+iroh.workspace = true
+origin-protocol.workspace = true
+postcard.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+x25519-dalek.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,77 @@
+# commons-node-client
+
+The Commons node's shared wire layer, in two crates:
+
+- **`auth-wire`** — the transport-neutral, signed request, response, session
+  and stream contract (auth_wire v2).
+- **`commons-node-client`** — the `control/1` wire types and the client for
+  them, which the node, its sidecar, the App and `cmns` share so none of them
+  mirrors the wire.
+
+The client binds no endpoint of its own: every call takes the endpoint, or a
+connection on it, that the caller built. That is deliberate — the caller
+chooses the network and keeps custody of its keys.
+
+These crates were moved here from `commons-node` at revision `7b4694e`
+(version 0.9.48). From here they version on their own; consumers pin this
+repository by revision.
+
+## Consumers
+
+| Consumer | How it uses the client |
+|---|---|
+| `commons-node` (node, sidecar, `cmn`) | control/1 operations over iroh and the local admin socket |
+| `commons-app` | the same operations from the App |
+| `commons-cli` (`cmns`) | read and admin operations against a node named by a ticket |
+
+The protocol is defined and served by the node. The client follows it, which
+is why this repository's releases are cut with the node's protocol changes and
+pinned by consumers rather than depended on by path.
+
+## The transport graph
+
+`origin-protocol` and these crates build against Dhiway's iroh and noq forks.
+Cargo applies `[patch.crates-io]` only at the root of a workspace, so every
+consumer repeats the block. `transport-pins.toml` is the canonical record, and
+`scripts/check-transport-pins.py <Cargo.lock>` fails a consumer whose resolved
+graph has drifted:
+
+```sh
+python3 scripts/check-transport-pins.py ../commons-node/Cargo.lock
+```
+
+Deliberately offline: it reads the lockfile Cargo produced, not the network.
+
+## Building
+
+```sh
+cargo build
+cargo test
+```
+
+Toolchain pinned in `rust-toolchain.toml` (1.99.0).
+
+## Known gaps, from the first out-of-tree caller (2026-11-25)
+
+A program outside the node reached a live node through this client using only
+a ticket and its own key (M1 of the `cmns` plan). What it had to supply
+itself, and should probably live here next:
+
+1. **Ticket parsing.** The client neither parses nor re-exports a ticket; the
+   caller adds `iroh-tickets` and calls `EndpointTicket::from_str(...)`.
+2. **A profile builder.** The caller has to build the endpoint. An
+   offline node works with `presets::Minimal`, the relay disabled and the
+   direct addresses from the ticket; a node in relay mode needs the relay and
+   address lookup the "Commons profile" names, which is not exported here.
+   This is the first thing `cmns` cannot do without help.
+3. **One printed form for endpoint ids.** iroh prints hex; the node prints
+   z-base-32 everywhere. The z-base-32 helper is internal to `wire.rs`.
+4. **A key file format.** None exists; a caller invents one.
+
+Enrolling a key as an admin is not on this list and never will be: only the
+node's operator, on the node's machine, can make a key an admin
+(`cmn admins add`). A CLI cannot bootstrap its own admin access, by design.
+
+## Licence
+
+Apache-2.0. See `LICENSE`.

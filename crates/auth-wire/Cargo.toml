@@ -1,0 +1,22 @@
+[package]
+name = "auth-wire"
+description = "Transport-neutral deterministic signed request, response, session, and stream wire contract for Commons"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+blake3.workspace = true
+iroh.workspace = true
+postcard.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+hex.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

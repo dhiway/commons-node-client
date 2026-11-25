@@ -1,0 +1,20 @@
+# The transport graph every consumer must build against.
+#
+# Cargo applies [patch.crates-io] only at the root of a workspace, so each
+# consumer of these crates repeats the block. This file is the canonical
+# record of it. `scripts/check-transport-pins.py <Cargo.lock>` asserts that a
+# consumer's resolved graph carries exactly these revisions, so a drifted fork
+# fails that consumer's gate instead of producing a different transport.
+#
+# A change here is a change to the transport for every consumer: land it with
+# the crate changes that need it, bump the consumers' client pin in the same
+# review round, and re-run their gates.
+
+iroh = { git = "https://github.com/dhiway/iroh", rev = "53eeba9b1da316c8e6f7d1366ebcbf338f18c9e0" }
+iroh-base = { git = "https://github.com/dhiway/iroh", rev = "53eeba9b1da316c8e6f7d1366ebcbf338f18c9e0" }
+iroh-dns = { git = "https://github.com/dhiway/iroh", rev = "53eeba9b1da316c8e6f7d1366ebcbf338f18c9e0" }
+iroh-relay = { git = "https://github.com/dhiway/iroh", rev = "53eeba9b1da316c8e6f7d1366ebcbf338f18c9e0" }
+iroh-blobs = { git = "https://github.com/dhiway/iroh-blobs", rev = "39ec1d2a226c2e6682756e498276b989cf6269d1" }
+noq = { git = "https://github.com/dhiway/noq", rev = "a651c1353017ab6643ea65880ce390fcd2df547d" }
+noq-proto = { git = "https://github.com/dhiway/noq", rev = "a651c1353017ab6643ea65880ce390fcd2df547d" }
+noq-udp = { git = "https://github.com/dhiway/noq", rev = "a651c1353017ab6643ea65880ce390fcd2df547d" }
