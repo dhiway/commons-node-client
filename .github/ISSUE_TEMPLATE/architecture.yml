@@ -1,0 +1,23 @@
+name: Architecture
+description: A decision to make, or a map of decisions.
+type: Architecture
+projects: ["dhiway/15"]
+body:
+  - type: textarea
+    id: decision
+    attributes:
+      label: The decision
+      description: The question to settle, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why now
+      description: What is waiting on it.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options known so far

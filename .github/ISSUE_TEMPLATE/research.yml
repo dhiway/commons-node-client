@@ -1,0 +1,22 @@
+name: Research
+description: A question to answer from sources or a prototype.
+type: Research
+projects: ["dhiway/15"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: The question
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What the answer decides
+      description: The ticket or decision that is waiting on it.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Where to look first
