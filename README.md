@@ -58,11 +58,14 @@ use iroh and never talks over the network: it takes the sidecar's directory,
 not a URL. It writes one line, `{"op": …, "params": …}` and a newline, and
 reads one newline-terminated JSON answer: `{"result": …}`, returned as the
 value, or `{"error": {"code", "message"}}`, returned as an error reading
-`<message> (<code>)`. The ops are the sidecar's own; this client neither
+`<message> (<code>)`. An answer with neither key is an error; this is
+deliberately stricter than the reference, which returned null, and a
+`{"result": null}` answer still returns null. The ops are the sidecar's own; this client neither
 names nor checks them. It refuses an `admin` directory or socket that is a
 symlink, is owned by another user or grants group or other access, and a
 peer whose uid is not the caller's; a refusal because the socket belongs to
-another user names that user and how to run as them. Request lines are at
+another user names that user and suggests `sudo -u <name>`, naming no
+program, since several programs share this crate. Request lines are at
 most 64 KiB (the sidecar's own bound) and are refused before connecting when
 larger, answer lines at most 16 MiB and must end in a newline, and the
 exchange times out after 30 seconds (`SIDECAR_ADMIN_MAX_REQUEST`,

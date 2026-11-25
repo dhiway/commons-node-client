@@ -28,12 +28,13 @@ pub const SIDECAR_ADMIN_MAX_ANSWER: usize = 16 * 1024 * 1024;
 pub const SIDECAR_ADMIN_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
 
 /// Why a socket of another user is refused, naming that user and how to run
-/// as them.
+/// as them. The hint names no program: this crate serves several, and a
+/// caller that wants its own command in the hint wraps this message.
 pub fn wrong_user(owner: u32) -> String {
     let name = user_name(owner);
     format!(
         "the sidecar's admin socket belongs to {name}, not to this user: run the command as \
-         that user, e.g. `sudo -u {name} cmns sidecar …`"
+         that user, e.g. `sudo -u {name}`"
     )
 }
 
@@ -529,9 +530,13 @@ mod tests {
     fn wrong_user_names_the_sidecar_user() {
         let message = wrong_user(0);
         assert!(message.contains(&user_name(0)), "{message}");
-        assert!(
-            message.contains(&format!("sudo -u {} cmns sidecar", user_name(0))),
-            "{message}"
+        let name = user_name(0);
+        assert_eq!(
+            message,
+            format!(
+                "the sidecar's admin socket belongs to {name}, not to this user: run the \
+                 command as that user, e.g. `sudo -u {name}`"
+            )
         );
         assert_ne!(user_name(0), "uid 0", "root has a name on every Unix");
         assert!(wrong_user(4_000_000).contains("uid 4000000"));
