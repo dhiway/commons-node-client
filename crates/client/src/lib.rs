@@ -18,6 +18,9 @@
 
 mod exchange;
 pub mod key_door;
+/// The Commons network profile (8.1), under the `commons-profile` feature.
+#[cfg(feature = "commons-profile")]
+pub mod profile;
 mod session;
 mod wire;
 

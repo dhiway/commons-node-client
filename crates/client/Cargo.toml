@@ -7,11 +7,20 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[features]
+# The Commons network profile (spec node-access 8.1): `profile::builder`
+# returns an endpoint builder that already carries the Commons relays, their
+# allowlist, the DNS resolver and the signed lookups. Off by default because it
+# brings the chain-facing stack the profile is built from; a program that
+# talks to the Commons network turns it on rather than assembling its own.
+commons-profile = ["dep:endpoint"]
+
 [dependencies]
 anyhow.workspace = true
 auth-wire.workspace = true
 blake3.workspace = true
 chacha20poly1305.workspace = true
+endpoint = { workspace = true, optional = true }
 hex.workspace = true
 iroh.workspace = true
 origin-protocol.workspace = true

@@ -12,6 +12,24 @@ The client binds no endpoint of its own: every call takes the endpoint, or a
 connection on it, that the caller built. That is deliberate — the caller
 chooses the network and keeps custody of its keys.
 
+## The Commons network profile (feature `commons-profile`)
+
+A Commons program does not choose its own network. With `commons-profile`
+turned on, `profile::builder()` returns an endpoint builder that already
+carries the Commons profile: the relay map, its allowlist, the DNS resolver and
+the signed lookups, at the version of commons-services the node pins. The
+caller adds its secret key and any bind options and binds.
+
+```toml
+commons-node-client = { git = "https://github.com/dhiway/commons-node-client", rev = "…", features = ["commons-profile"] }
+```
+
+The feature is off by default because the profile is compiled from the
+Services crate's `native-client` set, which brings the chain-facing stack
+(statement, broker, signing, coordination). A program that talks to the
+Commons network turns it on instead of assembling relays of its own, which
+spec node-access 8.1 forbids.
+
 These crates were moved here from `commons-node` at revision `7b4694e`
 (workspace version 0.9.47; the content is that of the 0.9.48 release commit
 `a142270`, which changed neither crate). From here they version on their own;
@@ -65,14 +83,12 @@ itself, and should probably live here next:
 
 1. **Ticket parsing.** The client neither parses nor re-exports a ticket; the
    caller adds `iroh-tickets` and calls `EndpointTicket::from_str(...)`.
-2. **A profile builder.** The caller has to build the endpoint. An
-   offline node works with `presets::Minimal`, the relay disabled and the
-   direct addresses from the ticket; a node in relay mode needs the relay and
-   address lookup the "Commons profile" names, which is not exported here.
-   This is the first thing `cmns` cannot do without help.
-3. **One printed form for endpoint ids.** iroh prints hex; the node prints
+2. **One printed form for endpoint ids.** iroh prints hex; the node prints
    z-base-32 everywhere. The z-base-32 helper is internal to `wire.rs`.
-4. **A key file format.** None exists; a caller invents one.
+3. **A key file format.** None exists; a caller invents one.
+
+The profile builder was the second gap on this list; `commons-profile`
+closes it (T320.30).
 
 Enrolling a key as an admin is not on this list and never will be: only the
 node's operator, on the node's machine, can make a key an admin
