@@ -1,0 +1,22 @@
+name: Testing
+description: A qualification run, a test gap or a release check.
+type: Testing
+projects: ["dhiway/15"]
+body:
+  - type: textarea
+    id: claim
+    attributes:
+      label: What has to be shown
+      description: The claim to check, and the build it is checked on (repo and commit).
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: How
+      description: The commands or steps, if known.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: A link to the record once it exists.

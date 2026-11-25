@@ -1,0 +1,25 @@
+name: Task
+description: One piece of work in this repo that one pull request can close.
+type: Task
+projects: ["dhiway/15"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What to build
+      description: One paragraph. Name the behaviour, not the files.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Checks a reviewer can run or see.
+      value: "- [ ] "
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Checks
+      description: The commands that must pass, from this repo's AGENTS.md.

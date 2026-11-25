@@ -36,3 +36,8 @@ python3 scripts/check-transport-pins.py Cargo.lock
 
 Some `auth-wire` tests are golden and interop tests; the interop test requires
 `python3` and fails loudly without it, rather than skipping.
+
+## Tracking
+
+Tickets, statuses and pull request rules: `~/.commons-hq/tracker.md` (https://github.com/dhiway/commons-hq).
+Skills are in `commons-hq/skills`; run `ask-commons` to pick one.
