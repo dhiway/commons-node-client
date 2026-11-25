@@ -1,5 +1,5 @@
-//! The Commons network profile (spec node-access 8.1): the one way a Commons
-//! program builds its endpoint.
+//! The Commons network profile (spec node-access 1.7 and 8.1): the one way a
+//! Commons program builds its endpoint.
 //!
 //! A Commons program does not choose its own network. The relays, their
 //! allowlist, the DNS resolver and the signed lookups all come from the
@@ -13,7 +13,8 @@
 //! (ruling 117). The Services revision this module compiles is the one the node
 //! pins, so a consumer and the node it talks to select the same network.
 
-pub use endpoint::profile::{Error, NamedProfile, NetworkDescriptor};
+use endpoint::profile::NamedProfile;
+pub use endpoint::profile::{Error, NetworkDescriptor};
 use iroh::endpoint::Builder;
 
 /// The named profile every Commons program builds from.
@@ -27,9 +28,13 @@ pub fn descriptor() -> Result<NetworkDescriptor, Error> {
 
 /// `builder` with the Commons profile applied: its preset, relay map, relay
 /// allowlist, DNS resolver and signed lookups. The caller sets its secret key
-/// and any bind options, then binds. A caller that already configured a
-/// builder of its own (an accept-only ALPN, say) uses this rather than
-/// [`builder`], so nothing it sets before this call is lost.
+/// and any bind options, then binds.
+///
+/// What a caller set before this call: its identity, its ALPNs, its IP binds
+/// and its transport configuration are kept; any address lookup, relay or DNS
+/// resolver it set is **replaced** by the profile's. That replacement is the
+/// safety property, not a side effect — it is what removes N0's relays and
+/// lookup from a builder that had them.
 pub fn configure(builder: Builder) -> Result<Builder, Error> {
     descriptor()?.configure_endpoint(builder)
 }
@@ -44,8 +49,7 @@ pub fn builder() -> Result<Builder, Error> {
 mod tests {
     use super::*;
 
-    /// The whole point of the export: the relay set a consumer gets is the
-    /// Commons pair, not whatever its ticket or its argument named.
+    /// The relay set a consumer reads is the Commons pair.
     #[test]
     fn the_relay_set_is_the_commons_pair() {
         let descriptor = descriptor().expect("the compiled profile parses");
@@ -60,8 +64,37 @@ mod tests {
         );
     }
 
-    /// Both entry points return a builder rather than an error, and a caller's
-    /// own configuration can be added on top without losing the profile.
+    /// The builder this module hands out carries the profile's allowlist: bind
+    /// refuses a relay outside the Commons pair before any network effect, so a
+    /// `configure` that applied nothing would fail here. Checked through both
+    /// entry points.
+    #[tokio::test]
+    async fn bind_refuses_a_relay_outside_the_commons_pair() {
+        let foreign: iroh::RelayUrl = "http://127.0.0.1:9/".parse().unwrap();
+        for builder in [
+            builder().expect("the profile configures a builder"),
+            configure(iroh::Endpoint::builder(iroh::endpoint::presets::Minimal))
+                .expect("the profile configures a caller's builder"),
+        ] {
+            let result = builder
+                .relay_mode(iroh::RelayMode::Custom(iroh::RelayMap::from_iter([
+                    foreign.clone(),
+                ])))
+                .clear_address_lookup()
+                .clear_ip_transports()
+                .bind_addr((std::net::Ipv4Addr::LOCALHOST, 0))
+                .expect("a loopback bind address")
+                .bind()
+                .await;
+            assert!(
+                result.is_err(),
+                "a relay outside the Commons pair was accepted"
+            );
+        }
+    }
+
+    /// The profile reaches the builder, and a caller's key and ALPNs sit on top
+    /// of it.
     #[test]
     fn the_builder_carries_the_profile_for_the_caller() {
         let key = iroh::SecretKey::from_bytes(&[7; 32]);
@@ -69,7 +102,5 @@ mod tests {
             .expect("the profile configures a builder")
             .secret_key(key.clone())
             .alpns(vec![b"commons-node/control/1".to_vec()]);
-        let _ = configure(iroh::Endpoint::builder(iroh::endpoint::presets::Minimal))
-            .expect("the profile configures a caller's builder");
     }
 }
