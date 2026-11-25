@@ -16,8 +16,10 @@
 //! version is a decimal string and an author is written in the endpoint's
 //! z-base-32 form ([`Entry`], spec 1.6).
 //!
-//! One call does not use iroh: [`local::local_admin_call`] speaks JSON-RPC to
-//! the node's private same-UID Unix socket on this machine, never the network.
+//! Two calls do not use iroh: [`local::local_admin_call`] speaks JSON-RPC to
+//! the node's private same-UID Unix socket, and
+//! [`sidecar::sidecar_admin_call`] speaks the sidecar's JSON lines to
+//! `cmn-http`'s, each on this machine and never over the network.
 
 mod exchange;
 pub mod key_door;
@@ -26,6 +28,7 @@ pub mod local;
 #[cfg(feature = "commons-profile")]
 pub mod profile;
 mod session;
+pub mod sidecar;
 mod wire;
 
 pub use exchange::{

@@ -49,6 +49,27 @@ exchange times out after 15 seconds. The node's server keeps method
 classification and same-UID authorization. Non-Unix targets get an error.
 Ported from commons-node `7b4694e`, `crates/rpc/src/local_admin_client.rs`.
 
+## The sidecar's admin call
+
+`commons_node_client::sidecar::sidecar_admin_call(http_dir, op, params)` is
+the client for the HTTP sidecar's (`cmn-http`'s) private same-UID Unix
+socket, `<http_dir>/admin/admin.sock`. Like the local admin call it does not
+use iroh and never talks over the network: it takes the sidecar's directory,
+not a URL. It writes one line, `{"op": …, "params": …}` and a newline, and
+reads one newline-terminated JSON answer: `{"result": …}`, returned as the
+value, or `{"error": {"code", "message"}}`, returned as an error reading
+`<message> (<code>)`. The ops are the sidecar's own; this client neither
+names nor checks them. It refuses an `admin` directory or socket that is a
+symlink, is owned by another user or grants group or other access, and a
+peer whose uid is not the caller's; a refusal because the socket belongs to
+another user names that user and how to run as them. Request lines are at
+most 64 KiB (the sidecar's own bound) and are refused before connecting when
+larger, answer lines at most 16 MiB and must end in a newline, and the
+exchange times out after 30 seconds (`SIDECAR_ADMIN_MAX_REQUEST`,
+`SIDECAR_ADMIN_MAX_ANSWER`, `SIDECAR_ADMIN_TIMEOUT`). Non-Unix targets get an
+error. Ported from commons-node `7b4694e`, `crates/cli/src/http.rs` (`admin`,
+`check_socket`, `wrong_user`).
+
 ## Consumers
 
 | Consumer | How it uses the client |
